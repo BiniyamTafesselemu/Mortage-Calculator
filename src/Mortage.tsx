@@ -1,15 +1,60 @@
-// import React from 'react'; // Import React
+// Import necessary libraries and assets
 import { connect } from 'react-redux'; // Import connect function
-import { toggleShowResults } from './action/Action'; // Import the action creator
+import { ShowResults, setMortgageType } from './action/Action'; // Import action creators
 import calculatorempty from './assets/illustration-empty.svg';
 import calculator from './assets/icon-calculator.svg';
+import { z, ZodType } from 'zod';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
+// Define the properties for the Mortgage component
 interface MortgageProps {
     showResults: boolean;
-    toggleShowResults: () => void;
+    ShowResults: () => void;
+    setMortgageType: (type: string) => void;
 }
 
-const Mortgage = ({ showResults, toggleShowResults }: MortgageProps) => {
+// Define the form data structure
+type FormData = {
+    mortgageAmount: number;
+    mortgageTerm: number;
+    interestRate: number;
+    mortgageType: string;
+};
+
+// Zod schema for form validation
+const schema: ZodType<FormData> = z.object({
+    mortgageAmount: z.preprocess(
+        (value) => (value === "" ? undefined : Number(value)),
+        z.number().min(1, { message: "This field is required" })
+    ),
+    mortgageTerm: z.preprocess(
+        (value) => (value === "" ? undefined : Number(value)),
+        z.number().min(1, { message: "This field is required" })
+    ),
+    interestRate: z.preprocess(
+        (value) => (value === "" ? undefined : Number(value)),
+        z.number().min(1, { message: "This field is required" })
+    ),
+    mortgageType: z.string().min(1, { message: "This field is required" }),
+});
+
+// Mortgage component definition
+const Mortgage = ({ showResults, ShowResults, setMortgageType }: MortgageProps) => {
+    const {
+        register,
+        handleSubmit,
+        control,
+        formState: { errors },
+    } = useForm<FormData>({
+        resolver: zodResolver(schema),
+    });
+
+    const onSubmit = (data: FormData) => {
+        console.log(data);
+        ShowResults();
+    };
+
     return (
         <div className="flex flex-col items-center min-h-screen p-5 justify-center">
             <div className="rounded-2xl w-full max-w-[1000px] shadow-lg bg-white flex flex-row">
@@ -20,69 +65,121 @@ const Mortgage = ({ showResults, toggleShowResults }: MortgageProps) => {
                         <p className="cursor-pointer mt-1 underline">Clear All</p>
                     </div>
                     {/* Form for Mortgage Details */}
-                    <form className="mt-2" onSubmit={(e) => { e.preventDefault(); toggleShowResults(); }}>
+                    <form className="mt-2" onSubmit={handleSubmit(onSubmit)}>
                         {/* Mortgage Amount */}
                         <div className="mb-4">
                             <label htmlFor="mortgageAmount" className="block mb-5">Mortgage Amount:</label>
-                            <div className="flex items-center border rounded">
-                                <span className="bg-smoke p-2 w-[50px] flex justify-center items-center">£</span>
+                            <div className={`flex items-center border rounded ${errors.mortgageAmount ? 'border-red-500' : 'border-lightblue'}`}>
+                                <span className={`p-2 w-[50px] flex justify-center items-center ${errors.mortgageAmount ? 'bg-red-500' : 'bg-smoke'}`}>£</span>
                                 <input
                                     type="number"
                                     id="mortgageAmount"
-                                    name="mortgageAmount"
-                                    className="border border-smoke p-2 w-full focus:outline-none"
+                                    {...register("mortgageAmount")}
+                                    onInput={(e) => {
+                                        const target = e.target as HTMLInputElement;
+                                        if (Number(target.value) <= 0) target.value = "";
+                                    }}
+                                    className="p-2 w-full focus:outline-none"
                                     placeholder="Enter amount"
                                 />
                             </div>
+                            {errors.mortgageAmount && (
+                                <p className="text-red-500 text-sm mt-1">{errors.mortgageAmount.message}</p>
+                            )}
                         </div>
                         {/* Mortgage Term and Interest Rate Side by Side */}
                         <div className="flex mb-4">
                             {/* Mortgage Term */}
                             <div className="flex-1 mr-2">
                                 <label htmlFor="mortgageTerm" className="block mb-3">Mortgage Term:</label>
-                                <div className="flex items-center border rounded">
+                                <div className={`flex items-center border rounded ${errors.mortgageTerm ? 'border-red-500' : 'border-lightblue'}`}>
                                     <input
                                         type="number"
                                         id="mortgageTerm"
-                                        name="mortgageTerm"
-                                        className="border border-smoke p-2 w-full focus:outline-none"
+                                        {...register("mortgageTerm")}
+                                        onInput={(e) => {
+                                            const target = e.target as HTMLInputElement;
+                                            if (Number(target.value) <= 0) target.value = "";
+                                        }}
+                                        className="p-2 w-full focus:outline-none"
                                         placeholder="Enter years"
                                     />
-                                    <span className="bg-smoke p-2 w-[100px] flex justify-center items-center">years</span>
+                                    <span className={`p-2 w-[100px] flex justify-center items-center ${errors.mortgageTerm ? 'bg-red-500' : 'bg-smoke'}`}>years</span>
                                 </div>
+                                {errors.mortgageTerm && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.mortgageTerm.message}</p>
+                                )}
                             </div>
                             {/* Interest Rate */}
                             <div className="flex-1 ml-2">
                                 <label htmlFor="interestRate" className="block mb-3">Interest Rate:</label>
-                                <div className="flex items-center border rounded">
+                                <div className={`flex items-center border rounded ${errors.interestRate ? 'border-red-500' : 'border-lightblue'}`}>
                                     <input
                                         type="number"
                                         id="interestRate"
-                                        name="interestRate"
-                                        className="border border-smoke p-2 w-full focus:outline-none"
+                                        {...register("interestRate")}
+                                        onInput={(e) => {
+                                            const target = e.target as HTMLInputElement;
+                                            if (Number(target.value) <= 0) target.value = "";
+                                        }}
+                                        className="p-2 w-full focus:outline-none"
                                         placeholder="Enter rate"
                                     />
-                                    <span className="bg-smoke p-2 w-[50px] flex justify-center items-center">%</span>
+                                    <span className={`p-2 w-[50px] flex justify-center items-center ${errors.interestRate ? 'bg-red-500' : 'bg-smoke'}`}>%</span>
                                 </div>
+                                {errors.interestRate && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.interestRate.message}</p>
+                                )}
                             </div>
                         </div>
                         {/* Mortgage Type in Separate Text Boxes */}
                         <div className="mb-4">
                             <label className="block mb-1">Mortgage Type:</label>
                             <div className="flex flex-col">
-                                <div className="border border-smoke hover:border-lime active:bg-lime-100 rounded mb-2">
-                                    <label className="flex items-center p-2">
-                                        <input type="radio" name="mortgageType" value="repayment" />
-                                        <span className="ml-2">Repayment</span>
-                                    </label>
-                                </div>
-                                <div className="border border-smoke hover:border-lime rounded">
-                                    <label className="flex items-center p-2">
-                                        <input type="radio" name="mortgageType" value="interest-only" />
-                                        <span className="ml-2">Interest Only</span>
-                                    </label>
-                                </div>
+                                <Controller
+                                    name="mortgageType"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <>
+                                            <div
+                                                className={`border border-smoke hover:border-lime active:bg-lime-100 rounded mb-2 ${field.value === 'repayment' ? 'bg-lime-100' : ''}`}
+                                            >
+                                                <label className="flex items-center p-2">
+                                                    <input
+                                                        type="radio"
+                                                        {...field}
+                                                        value="repayment"
+                                                        onChange={(e) => {
+                                                            field.onChange(e.target.value);
+                                                            setMortgageType('repayment');
+                                                        }}
+                                                    />
+                                                    <span className="ml-2">Repayment</span>
+                                                </label>
+                                            </div>
+                                            <div
+                                                className={`border border-smoke hover:border-lime rounded ${field.value === 'interest-only' ? 'bg-lime-100' : ''}`}
+                                            >
+                                                <label className="flex items-center p-2">
+                                                    <input
+                                                        type="radio"
+                                                        {...field}
+                                                        value="interest-only"
+                                                        onChange={(e) => {
+                                                            field.onChange(e.target.value);
+                                                            setMortgageType('interest-only');
+                                                        }}
+                                                    />
+                                                    <span className="ml-2">Interest Only</span>
+                                                </label>
+                                            </div>
+                                        </>
+                                    )}
+                                />
                             </div>
+                            {errors.mortgageType && (
+                                <p className="text-red-500 text-sm mt-1">{errors.mortgageType.message}</p>
+                            )}
                         </div>
                         {/* Calculate Button */}
                         <button
@@ -116,7 +213,7 @@ const Mortgage = ({ showResults, toggleShowResults }: MortgageProps) => {
                                     <h1 className='text-gray-400'>Your monthly repayments</h1>
                                     <h1 className='text-4xl text-lime mt-5'>£ 1,786.86</h1>
                                     <hr className='mt-[30px] text-gray-600'></hr>
-                                    <p className='mt-5 text-gray-400'>Total you'll replay over the term</p>
+                                    <p className='mt-5 text-gray-400'>Total you'll repay over the term</p>
                                     <h1 className='text-2xl text-white'>£ 1,786.86</h1>
                                 </div>
                             </div>
@@ -132,15 +229,18 @@ const Mortgage = ({ showResults, toggleShowResults }: MortgageProps) => {
 interface RootState {
     showResults: {
         showResults: boolean;
+        mortgageType: string | null;
     };
 }
 
 const mapStateToProps = (state: RootState) => ({
     showResults: state.showResults.showResults,
+    mortgageType: state.showResults.mortgageType,
 });
 
 const mapDispatchToProps = {
-    toggleShowResults,
+    ShowResults,
+    setMortgageType,
 };
 
 // Connect the component to Redux

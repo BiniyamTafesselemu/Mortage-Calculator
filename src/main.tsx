@@ -1,4 +1,3 @@
-import React from 'react'; // Import React
 import { StrictMode } from 'react'; // Import StrictMode
 import { createRoot } from 'react-dom/client'; // Import createRoot from react-dom/client
 import { Provider } from 'react-redux'; // Import Provider from react-redux
