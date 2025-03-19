@@ -3,7 +3,7 @@ import { connect } from 'react-redux'; // Import connect function
 import { ShowResults, setMortgageType } from './action/Action'; // Import action creators
 import calculatorempty from './assets/illustration-empty.svg';
 import calculator from './assets/icon-calculator.svg';
-import { z, ZodType } from 'zod';
+import { z } from 'zod';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
@@ -24,19 +24,19 @@ type FormData = {
 };
 
 // Zod schema for form validation
-const schema: ZodType<FormData> = z.object({
+const schema = z.object({
     mortgageAmount: z.preprocess(
         (value) => (value === "" ? undefined : Number(value)),
         z.number().min(1, { message: "This field is required" })
-    ),
+    ) as z.ZodEffects<z.ZodNumber, number, number>,
     mortgageTerm: z.preprocess(
         (value) => (value === "" ? undefined : Number(value)),
         z.number().min(1, { message: "This field is required" })
-    ),
+    ) as z.ZodEffects<z.ZodNumber, number, number>,
     interestRate: z.preprocess(
         (value) => (value === "" ? undefined : Number(value)),
         z.number().min(1, { message: "This field is required" })
-    ),
+    ) as z.ZodEffects<z.ZodNumber, number, number>,
     mortgageType: z.string().min(1, { message: "This field is required" }),
 });
 
