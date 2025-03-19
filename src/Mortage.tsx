@@ -6,6 +6,7 @@ import calculator from './assets/icon-calculator.svg';
 import { z, ZodType } from 'zod';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
 
 // Define the properties for the Mortgage component
 interface MortgageProps {
@@ -50,31 +51,35 @@ const Mortgage = ({ showResults, ShowResults, setMortgageType }: MortgageProps) 
         resolver: zodResolver(schema),
     });
 
+    const [activeField, setActiveField] = useState<string | null>(null);
+
     const onSubmit = (data: FormData) => {
         console.log(data);
         ShowResults();
     };
 
     return (
-        <div className="flex flex-col items-center min-h-screen p-5 justify-center">
-            <div className="rounded-2xl w-full max-w-[1000px] shadow-lg bg-white flex flex-row">
+        <div className="flex flex-col items-center min-h-screen p-5 justify-center w-full">
+            <div className="rounded-2xl w-full max-w-[1000px] shadow-lg bg-white flex flex-col md:flex-row">
                 {/* Left Side */}
-                <div className="flex-1 flex flex-col justify-start m-9">
+                <div className="flex-1 flex flex-col justify-start m-5 md:m-9">
                     <div className="flex justify-between mb-2">
-                        <h1 className="text-2xl">Mortgage Calculator</h1>
+                        <h1 className="text-xl md:text-2xl">Mortgage Calculator</h1>
                         <p className="cursor-pointer mt-1 underline">Clear All</p>
                     </div>
                     {/* Form for Mortgage Details */}
                     <form className="mt-2" onSubmit={handleSubmit(onSubmit)}>
                         {/* Mortgage Amount */}
                         <div className="mb-4">
-                            <label htmlFor="mortgageAmount" className="block mb-5">Mortgage Amount:</label>
-                            <div className={`flex items-center border rounded ${errors.mortgageAmount ? 'border-red-500' : 'border-lightblue'}`}>
-                                <span className={`p-2 w-[50px] flex justify-center items-center ${errors.mortgageAmount ? 'bg-red-500' : 'bg-smoke'}`}>£</span>
+                            <label htmlFor="mortgageAmount" className="block mb-2 md:mb-5">Mortgage Amount:</label>
+                            <div className={`flex items-center border rounded ${errors.mortgageAmount ? 'border-red-500' : activeField === 'mortgageAmount' ? 'border-lime' : 'border-lightblue'}`}>
+                                <span className={`p-2 w-[50px] flex justify-center items-center ${errors.mortgageAmount ? 'bg-red-500' : activeField === 'mortgageAmount' ? 'bg-lime' : 'bg-smoke'}`}>£</span>
                                 <input
                                     type="number"
                                     id="mortgageAmount"
                                     {...register("mortgageAmount")}
+                                    onFocus={() => setActiveField('mortgageAmount')}
+                                    onBlur={() => setActiveField(null)}
                                     onInput={(e) => {
                                         const target = e.target as HTMLInputElement;
                                         if (Number(target.value) <= 0) target.value = "";
@@ -88,15 +93,17 @@ const Mortgage = ({ showResults, ShowResults, setMortgageType }: MortgageProps) 
                             )}
                         </div>
                         {/* Mortgage Term and Interest Rate Side by Side */}
-                        <div className="flex mb-4">
+                        <div className="flex flex-col md:flex-row mb-4">
                             {/* Mortgage Term */}
-                            <div className="flex-1 mr-2">
-                                <label htmlFor="mortgageTerm" className="block mb-3">Mortgage Term:</label>
-                                <div className={`flex items-center border rounded ${errors.mortgageTerm ? 'border-red-500' : 'border-lightblue'}`}>
+                            <div className="flex-1 mb-4 md:mb-0 md:mr-2">
+                                <label htmlFor="mortgageTerm" className="block mb-2 md:mb-3">Mortgage Term:</label>
+                                <div className={`flex items-center border rounded ${errors.mortgageTerm ? 'border-red-500' : activeField === 'mortgageTerm' ? 'border-lime' : 'border-lightblue'}`}>
                                     <input
                                         type="number"
                                         id="mortgageTerm"
                                         {...register("mortgageTerm")}
+                                        onFocus={() => setActiveField('mortgageTerm')}
+                                        onBlur={() => setActiveField(null)}
                                         onInput={(e) => {
                                             const target = e.target as HTMLInputElement;
                                             if (Number(target.value) <= 0) target.value = "";
@@ -104,20 +111,22 @@ const Mortgage = ({ showResults, ShowResults, setMortgageType }: MortgageProps) 
                                         className="p-2 w-full focus:outline-none"
                                         placeholder="Enter years"
                                     />
-                                    <span className={`p-2 w-[100px] flex justify-center items-center ${errors.mortgageTerm ? 'bg-red-500' : 'bg-smoke'}`}>years</span>
+                                    <span className={`p-2 w-[100px] flex justify-center items-center ${errors.mortgageTerm ? 'bg-red-500' : activeField === 'mortgageTerm' ? 'bg-lime' : 'bg-smoke'}`}>years</span>
                                 </div>
                                 {errors.mortgageTerm && (
                                     <p className="text-red-500 text-sm mt-1">{errors.mortgageTerm.message}</p>
                                 )}
                             </div>
                             {/* Interest Rate */}
-                            <div className="flex-1 ml-2">
-                                <label htmlFor="interestRate" className="block mb-3">Interest Rate:</label>
-                                <div className={`flex items-center border rounded ${errors.interestRate ? 'border-red-500' : 'border-lightblue'}`}>
+                            <div className="flex-1 md:ml-2">
+                                <label htmlFor="interestRate" className="block mb-2 md:mb-3">Interest Rate:</label>
+                                <div className={`flex items-center border rounded ${errors.interestRate ? 'border-red-500' : activeField === 'interestRate' ? 'border-lime' : 'border-lightblue'}`}>
                                     <input
                                         type="number"
                                         id="interestRate"
                                         {...register("interestRate")}
+                                        onFocus={() => setActiveField('interestRate')}
+                                        onBlur={() => setActiveField(null)}
                                         onInput={(e) => {
                                             const target = e.target as HTMLInputElement;
                                             if (Number(target.value) <= 0) target.value = "";
@@ -125,7 +134,7 @@ const Mortgage = ({ showResults, ShowResults, setMortgageType }: MortgageProps) 
                                         className="p-2 w-full focus:outline-none"
                                         placeholder="Enter rate"
                                     />
-                                    <span className={`p-2 w-[50px] flex justify-center items-center ${errors.interestRate ? 'bg-red-500' : 'bg-smoke'}`}>%</span>
+                                    <span className={`p-2 w-[50px] flex justify-center items-center ${errors.interestRate ? 'bg-red-500' : activeField === 'interestRate' ? 'bg-lime' : 'bg-smoke'}`}>%</span>
                                 </div>
                                 {errors.interestRate && (
                                     <p className="text-red-500 text-sm mt-1">{errors.interestRate.message}</p>
@@ -142,7 +151,7 @@ const Mortgage = ({ showResults, ShowResults, setMortgageType }: MortgageProps) 
                                     render={({ field }) => (
                                         <>
                                             <div
-                                                className={`border border-smoke hover:border-lime active:bg-lime-100 rounded mb-2 ${field.value === 'repayment' ? 'bg-lime-100' : ''}`}
+                                                className={`border rounded hover:border-lime mb-2 ${field.value === 'repayment' ? 'border-lime bg-yellow-50' : 'border-smoke'}`}
                                             >
                                                 <label className="flex items-center p-2">
                                                     <input
@@ -158,7 +167,7 @@ const Mortgage = ({ showResults, ShowResults, setMortgageType }: MortgageProps) 
                                                 </label>
                                             </div>
                                             <div
-                                                className={`border border-smoke hover:border-lime rounded ${field.value === 'interest-only' ? 'bg-lime-100' : ''}`}
+                                                className={`border rounded hover:border-lime ${field.value === 'interest-only' ? 'border-lime bg-yellow-50' : 'border-smoke'}`}
                                             >
                                                 <label className="flex items-center p-2">
                                                     <input
@@ -184,7 +193,7 @@ const Mortgage = ({ showResults, ShowResults, setMortgageType }: MortgageProps) 
                         {/* Calculate Button */}
                         <button
                             type="submit"
-                            className="rounded-3xl flex flex-row justify-center items-center bg-lime w-[250px] text-white mt-[30px]"
+                            className="cursor-pointer rounded-3xl flex flex-row justify-center items-center bg-lime w-full md:w-[250px] text-white mt-[30px]"
                         >
                             <img src={calculator} alt="calculator" />
                             <b className="text-black m-2">Calculate Repayments</b>
@@ -192,7 +201,7 @@ const Mortgage = ({ showResults, ShowResults, setMortgageType }: MortgageProps) 
                     </form>
                 </div>
                 {/* Right Side */}
-                <div className="flex-1 rounded-tr-2xl rounded-br-2xl rounded-tl-1xl rounded-bl-[80px] bg-darkblue p-5">
+                <div className="flex-1 md:rounded-tr-2xl md:rounded-br-2xl md:rounded-tl-1xl md:rounded-bl-[80px] bg-darkblue p-5 mt-5 md:mt-0 w-full md:w-auto">
                     {showResults ? (
                         <div className="flex flex-col justify-center items-center h-full">
                             <img src={calculatorempty} alt='calculator' className="mx-auto" />
@@ -209,7 +218,7 @@ const Mortgage = ({ showResults, ShowResults, setMortgageType }: MortgageProps) 
                                 you provided. To adjust the results, edit the form and<br />
                                 click "calculate repayments" again.</p>
                             <div className='flex flex-col justify-center items-center'>
-                                <div className='bg-black w-full mt-[30px] border-t-lime border-t-3 rounded-[5px] p-5 mb-[80px]'>
+                                <div className='bg-black w-full mt-[30px] md:border-t-lime md:border-t-3 rounded-[5px] p-5 mb-[80px]'>
                                     <h1 className='text-gray-400'>Your monthly repayments</h1>
                                     <h1 className='text-4xl text-lime mt-5'>£ 1,786.86</h1>
                                     <hr className='mt-[30px] text-gray-600'></hr>
